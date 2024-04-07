@@ -18,10 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "imu.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "imu.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +83,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
   /* USER CODE END Init */
 
@@ -107,7 +106,7 @@ int main(void)
 
   TxHeader.IDE = CAN_ID_STD; //Standard ID, EXT for extended?
   TxHeader.DLC = 8;
-  TxHeader.StdId = 0x446; //change?
+  TxHeader.StdId = 0x100; //change?
   TxHeader.RTR = CAN_RTR_DATA;
 
 
@@ -132,6 +131,7 @@ int main(void)
 
 	TxData[6] = sensor.temp;
 	TxData[7] = 0;
+	TxHeader.StdId = 0x100;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox); //acceleration data and temperature
 
 
@@ -140,7 +140,7 @@ int main(void)
 	}
 	TxData[6] = 0;
 	TxData[7] = 0;
-
+	TxHeader.StdId = 0x101;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox); //gyroscope data
 
 	for (int i = 0; i<6; i++){
@@ -148,7 +148,7 @@ int main(void)
 	}
 	TxData[6] = 0;
 	TxData[7] = 0;
-
+	TxHeader.StdId = 0x102;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox); //magnetometer data
 
 	HAL_Delay((float)1000/(float)POLLING_RATE);
@@ -314,13 +314,20 @@ static void MX_I2C2_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 /* USER CODE BEGIN MX_GPIO_Init_1 */
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin : IMU_INT_Pin */
+  GPIO_InitStruct.Pin = IMU_INT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(IMU_INT_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

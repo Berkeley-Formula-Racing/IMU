@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IMU_INT_Pin GPIO_PIN_7
+#define IMU_INT_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

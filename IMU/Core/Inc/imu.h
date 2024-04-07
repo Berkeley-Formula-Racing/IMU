@@ -9,7 +9,7 @@
 
 
 /* bno055 I2C Address */
-#define BNO055_I2C_ADDR 					(0x28 << 1)
+#define BNO055_I2C_ADDR 					(0x28)
 /***************************************************/
 /**\name    REGISTER ADDRESS DEFINITION  */
 /***************************************************/
@@ -210,11 +210,18 @@ typedef struct {
 	uint8_t temp;
 }  IMU;
 
+typedef struct {
+	uint8_t accCalib[6];
+	uint8_t gyrCalib[6];
+	uint8_t magCalib[6];
+	uint8_t radCalib[4];
+} CalibrationData;
+
 /*
  * INITIALIZATION
  */
 uint8_t IMU_Initialize (IMU *dev, I2C_HandleTypeDef *i2cHandle);
-
+uint8_t Calibration_Initialize(CalibrationData *d);
 /*
  * DATA ACQUISITION
  */
