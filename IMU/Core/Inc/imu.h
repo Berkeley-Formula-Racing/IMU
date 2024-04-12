@@ -9,7 +9,7 @@
 
 
 /* bno055 I2C Address */
-#define BNO055_I2C_ADDR 					(0x28)
+#define BNO055_I2C_ADDR 					(0x28 << 1)
 /***************************************************/
 /**\name    REGISTER ADDRESS DEFINITION  */
 /***************************************************/

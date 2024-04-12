@@ -29,17 +29,44 @@ uint8_t IMU_Initialize (IMU *dev, I2C_HandleTypeDef *i2cHandle) {
 
 	uint8_t errNum = 0;
 	HAL_StatusTypeDef status;
+	uint8_t buf[8];
 
 	// check IDs
 	uint8_t regData;
 
-	status = IMU_ReadRegister(dev, BNO055_CHIP_ID_ADDR, &regData );
-	errNum += ( status != HAL_OK );
 
-	if ( regData != BNO055_CHIP_ID ) {
+//	status = IMU_ReadRegister(dev, BNO055_CHIP_ID_ADDR, &regData );
+//	if ( regData != BNO055_CHIP_ID ) {
+//			return 255;
+//		}
+//	errNum += ( status != HAL_OK );
+
+	buf[0] = BNO055_CHIP_ID_ADDR;
+	status = HAL_I2C_Master_Transmit(dev -> i2cHandle, BNO055_I2C_ADDR, buf, 1, HAL_MAX_DELAY);
+
+//	HAL_Delay(1);
+
+	if ( status != HAL_OK ) {
+	  errNum++;
+	} else {
+
+	  // Read 2 bytes from the temperature register
+	  status = HAL_I2C_Master_Receive(dev -> i2cHandle, BNO055_I2C_ADDR, buf, 1, HAL_MAX_DELAY);
+//	  HAL_Delay(1);
+
+	  if ( status != HAL_OK ) {
+		errNum++;
+	  }
+	}
+
+
+	if ( buf[0] != BNO055_CHIP_ID ) {
 		return 255;
 	}
 
+//	buf[0] = BNO055_ACCEL_REV_ID_ADDR;
+//	status = HAL_I2C_Master_Receive(dev -> i2cHandle, BNO055_I2C_ADDR, buf, 1, HAL_MAX_DELAY);
+//	HAL_Delay(1);
 	status = IMU_ReadRegister(dev, BNO055_ACCEL_REV_ID_ADDR, &regData );
 		errNum += ( status != HAL_OK );
 
@@ -47,6 +74,9 @@ uint8_t IMU_Initialize (IMU *dev, I2C_HandleTypeDef *i2cHandle) {
 		return 255;
 	}
 
+	//not updated
+//	status = HAL_I2C_Master_Receive(dev -> i2cHandle, BNO055_MAG_REV_ID_ADDR, buf, 1, HAL_MAX_DELAY);
+//	HAL_Delay(1);
 	status = IMU_ReadRegister(dev, BNO055_MAG_REV_ID_ADDR, &regData );
 			errNum += ( status != HAL_OK );
 
@@ -188,9 +218,14 @@ HAL_StatusTypeDef IMU_Write_Offsets(IMU *dev) {
 
 
 HAL_StatusTypeDef IMU_ReadRegister(IMU *dev, uint8_t reg, uint8_t *data) {
-//	return HAL_I2C_Mem_Read(dev -> i2cHandle, BNO055_I2C_ADDR, reg, I2C_MEMADD_SIZE_8BIT, data, 1, HAL_MAX_DELAY);
+	uint8_t buf[1];
+	buf[0] = reg;
+//	return HAL_I2C_Master_Receive(dev -> i2cHandle, BNO055_I2C_ADDR, buf, 1, HAL_MAX_DELAY);
+	return HAL_I2C_Mem_Read(dev -> i2cHandle, BNO055_I2C_ADDR, reg, I2C_MEMADD_SIZE_8BIT, data, 1, HAL_MAX_DELAY);
+
+
 	// version with Master
-	return HAL_I2C_Master_Receive(dev -> i2cHandle, BNO055_I2C_ADDR, data, 1, HAL_MAX_DELAY);
+//	return HAL_I2C_Master_Receive(dev -> i2cHandle, BNO055_I2C_ADDR, data, 1, HAL_MAX_DELAY);
 }
 
 HAL_StatusTypeDef IMU_ReadRegisters(IMU *dev, uint8_t reg, uint8_t *data, uint8_t length) {
